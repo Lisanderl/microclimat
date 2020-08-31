@@ -1,0 +1,3 @@
+[[{ "text" : "Info", "callback_data" : "$info" },
+    { "text" : "Shot", "callback_data" : "$shot" },
+    { "text" : "Preferences", "callback_data" : "$preferences" }]]
