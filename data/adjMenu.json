@@ -1,0 +1,2 @@
+[[{"text":"Fan:","callback_data":"$"},{"text":"20%","callback_data":"$fan1"},{"text":"40%","callback_data":"$fan2"},{"text":"80%","callback_data":"$fan3"}],[{"text":"Led:","callback_data":"$"},{"text":"On","callback_data":"$ledOn"},{"text":"Off","callback_data":"$ledOff"}],[{"text":"MaxTemp:","callback_data":"$"},{"text":"22+","callback_data":"$temp1"},{"text":"26+","callback_data":"$temp2"}],[{"text":"MaxHym:","callback_data":"$"},{"text":"65+","callback_data":"$hum1"},{"text":"85+","callback_data":"$hum2"},{"text":"95+","callback_data":"$hum3"}]]
+

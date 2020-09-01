@@ -16,7 +16,9 @@ protected:
         {
             Serial.println("file open failed");
         }
-        return f.readString();
+        String str = f.readString();
+        f.close();
+        return str;
     }
 
 public:
@@ -26,7 +28,7 @@ public:
     }
     void execute(const String &chat_id)
     {
-        this->_bot->sendMessageWithInlineKeyboard(chat_id, _message, "", readFile());
+        this->_bot->sendMessageWithReplyKeyboard(chat_id, _message, "", readFile());
     }
 };
 
@@ -37,6 +39,16 @@ public:
     {
         this->_fileName = "/mainMenu.json";
         this->_message = "Manin menu: ";
+    }
+};
+
+class AdjMenuCommand : public BotAction
+{
+public:
+    AdjMenuCommand(UniversalTelegramBot *bot) : BotAction(bot)
+    {
+        this->_fileName = "/adjMenu.json";
+        this->_message = "Adj menu: ";
     }
 };
 

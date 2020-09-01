@@ -16,6 +16,7 @@ String botTokenPath = "/bot_token.txt"; // REPLACE myToken WITH YOUR TELEGRAM BO
 HTU21D htu;
 WiFiClientSecure client;
 BotAction *mainMenu;
+BotAction *adjMenu;
 UniversalTelegramBot *bot;
 
 int Bot_mtbs = 1000;
@@ -38,13 +39,15 @@ void handleNewMessages(int numNewMessages)
       Serial.println(bot->messages[i].from_id);
       Serial.print("Data on the button: ");
       Serial.println(bot->messages[i].text);
-      bot->sendMessage(bot->messages[i].from_id, bot->messages[i].text, "");
+      if (bot->messages[i].text.equals("$preferences"))
+      {
+        Serial.print("adj action");
+        selectAction(adjMenu, bot->messages[i].chat_id);
+      }
     }
     else
     {
-      String chat_id = String(bot->messages[i].chat_id);
-      String text = bot->messages[i].text;
-      selectAction(mainMenu, chat_id);
+      selectAction(mainMenu, bot->messages[i].chat_id);
     }
   }
 }
@@ -74,6 +77,7 @@ void setup()
   Serial.println(WiFi.localIP());
   bot = new UniversalTelegramBot(SPIFFS.open(botTokenPath, FILE_READ).readString(), client);
   mainMenu = new MainMenuCommand(bot);
+  adjMenu = new AdjMenuCommand(bot);
 }
 
 void loop()
