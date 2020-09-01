@@ -20,7 +20,10 @@ protected:
     }
 
 public:
-    BotAction(UniversalTelegramBot &bot);
+    BotAction(UniversalTelegramBot *bot)
+    {
+        this->_bot = bot;
+    }
     void execute(const String &chat_id)
     {
         this->_bot->sendMessageWithInlineKeyboard(chat_id, _message, "", readFile());
@@ -30,19 +33,12 @@ public:
 class MainMenuCommand : public BotAction
 {
 public:
-    MainMenuCommand(UniversalTelegramBot &bot);
+    MainMenuCommand(UniversalTelegramBot *bot) : BotAction(bot)
+    {
+        this->_fileName = "/mainMenu.json";
+        this->_message = "Manin menu: ";
+    }
 };
-
-BotAction::BotAction(UniversalTelegramBot &bot)
-{
-    this->_bot = &bot;
-}
-
-MainMenuCommand::MainMenuCommand(UniversalTelegramBot &bot) : BotAction(bot)
-{
-    this->_fileName = "/mainMenu.json";
-    this->_message = "Manin menu: ";
-}
 
 class BotActionFlyweight
 {
@@ -74,7 +70,7 @@ public:
         _myMap = nullptr;
     }
 
-    BotAction *getBotAction(const String &str, UniversalTelegramBot &bot)
+    BotAction *getBotAction(const String &str, UniversalTelegramBot *bot)
     {
         if (_myMap->has(str))
         {
@@ -83,7 +79,7 @@ public:
     }
 
 private:
-    BotAction *createBotAction(const String &str, UniversalTelegramBot &bot)
+    BotAction *createBotAction(const String &str, UniversalTelegramBot *bot)
     {
 
         switch (_myMap->getIndex(str))
