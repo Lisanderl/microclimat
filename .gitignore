@@ -24,7 +24,6 @@
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
@@ -39,4 +38,5 @@
 .vscode/launch.json
 .vscode/ipch
 data/pass.txt
+data/ssid.txt
 data/bot_token.txt

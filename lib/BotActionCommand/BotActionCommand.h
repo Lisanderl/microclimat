@@ -1,5 +1,4 @@
 #include <UniversalTelegramBot.h>
-#include <SimpleMap.h>
 #include "SPIFFS.h"
 
 class BotAction
@@ -7,7 +6,7 @@ class BotAction
 protected:
     String _fileName;
     String _message;
-    UniversalTelegramBot *_bot;
+    std::shared_ptr<UniversalTelegramBot> _bot;
     String readFile()
     {
 
@@ -22,86 +21,79 @@ protected:
     }
 
 public:
-    BotAction(UniversalTelegramBot *bot)
+    BotAction(std::shared_ptr<UniversalTelegramBot> bot)
     {
         this->_bot = bot;
     }
+
+    virtual void execute(const String &chat_id) = 0;
+};
+
+class MainMenuCommand : public BotAction
+{
+public:
+    MainMenuCommand(std::shared_ptr<UniversalTelegramBot> bot) : BotAction(bot)
+    {
+        this->_fileName = "/mainMenu.json";
+        this->_message = "Main menu: ";
+    }
+
     void execute(const String &chat_id)
     {
         this->_bot->sendMessageWithReplyKeyboard(chat_id, _message, "", readFile());
     }
 };
 
-class MainMenuCommand : public BotAction
-{
-public:
-    MainMenuCommand(UniversalTelegramBot *bot) : BotAction(bot)
-    {
-        this->_fileName = "/mainMenu.json";
-        this->_message = "Manin menu: ";
-    }
-};
-
 class AdjMenuCommand : public BotAction
 {
 public:
-    AdjMenuCommand(UniversalTelegramBot *bot) : BotAction(bot)
+    AdjMenuCommand(std::shared_ptr<UniversalTelegramBot> bot) : BotAction(bot)
     {
         this->_fileName = "/adjMenu.json";
         this->_message = "Adj menu: ";
     }
+
+    void execute(const String &chat_id)
+    {
+        this->_bot->sendMessageWithInlineKeyboard(chat_id, _message, "", readFile());
+    }
 };
 
-class BotActionFlyweight
+class InfoMenuCommand : public BotAction
 {
-private:
-    SimpleMap<String, BotAction *> *_myMap;
-    const String actions[6] = {"/mainMenu", "/adj", "/fan", "/led", "/temp", "/hym"};
 
 public:
-    BotActionFlyweight(String *menuActionName)
+    InfoMenuCommand(std::shared_ptr<UniversalTelegramBot> bot,
+                    std::shared_ptr<HTU21D> temHymSensor) : BotAction(bot)
     {
-
-        _myMap = new SimpleMap<String, BotAction *>([](String &a, String &b) -> int {
-            if (a == b)
-                return 0;
-
-            if (a > b)
-                return 1;
-
-            /*if (a < b) */ return -1;
-        });
-        // for (int x = 0; x < (sizeof(menuActionName) / sizeof(menuActionName[0])); x++)
-        // {
-        //     _myMap->put(menuActionName[x], nullptr);
-        // }
-    }
-    ~BotActionFlyweight()
-    {
-        _myMap->clear();
-        _myMap = nullptr;
+        this->_fileName = "/info.html";
+        this->_temHymSensor = temHymSensor;
     }
 
-    BotAction *getBotAction(const String &str, UniversalTelegramBot *bot)
+    void execute(const String &chat_id)
     {
-        if (_myMap->has(str))
-        {
-            return _myMap->get(str);
-        }
+        auto str = readFile();
+        String target = "$";
+        str.replace(target + "1", String(_temHymSensor->readTemperature())); //temp
+        str.replace(target + "2", String(_temHymSensor->readHumidity()));    //hym
+        str.replace(target + "3", "400");                            //co2
+        str.replace(target + "4", "Off");                            // light
+        this->_bot->sendMessage(chat_id, str, "html");
     }
 
 private:
-    BotAction *createBotAction(const String &str, UniversalTelegramBot *bot)
+    std::shared_ptr<HTU21D> _temHymSensor;
+};
+
+class PreferencesCommand : public BotAction
+{
+public:
+    PreferencesCommand(std::shared_ptr<UniversalTelegramBot> bot) : BotAction(bot)
     {
+        this->_fileName = "/info.html";
+    }
 
-        switch (_myMap->getIndex(str))
-        {
-        case 0:
-            return new MainMenuCommand(bot);
-            break;
-
-        default:
-            break;
-        }
+    void execute(const String &chat_id)
+    {
     }
 };
