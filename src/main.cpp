@@ -9,7 +9,7 @@
 #define I2C_SCL 15
 #define LED 4
 
-char ssid[] = "ASUS";
+String ssid = "/ssid.txt";
 String passPath = "/pass.txt";
 String botTokenPath = "/bot_token.txt"; // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
 
@@ -32,8 +32,7 @@ void setup()
     Serial.println("An Error has occurred while mounting two wire");
     return;
   }
-
-  WiFi.begin(ssid, SPIFFS.open(passPath, FILE_READ).readString().c_str());
+  WiFi.begin("Tenda_1FDCD8", "");
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -45,12 +44,16 @@ void setup()
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  //sinc time
+
   std::shared_ptr<UniversalTelegramBot> _bot(new UniversalTelegramBot(SPIFFS.open(botTokenPath, FILE_READ).readString(), client));
   std::shared_ptr<HTU21D> _temHymSensor(new HTU21D());
-  controller = new ActionController(_bot, _temHymSensor, 500);
+  std::shared_ptr<Timezone> _zonedTime(new Timezone(false));
+  controller = new ActionController(_bot, _temHymSensor, _zonedTime, 500);
 }
 
 void loop()
 {
   controller->checkForMessages();
+  controller->checkForActions();
 }
