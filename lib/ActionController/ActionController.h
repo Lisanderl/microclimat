@@ -20,8 +20,10 @@ public:
         this->_zonedTime = zonedTime;
         _bot_lasttime = 0;
         //settings
+        waitForSync();
         this->_zonedTime->setLocation("Europe/Kiev");
-          waitForSync();
+        this->_zonedTime->setEvent(oturnOnLights, makeTime(23, 32, 55, 12, OCTOBER, 2020));
+        this->_zonedTime->setEvent(oturnOffLights, makeTime(23, 32, 30, 12, OCTOBER, 2020));
     }
 
     void checkForMessages()
@@ -46,14 +48,32 @@ public:
         // if((millis() - actionLastTime) > TEN_MIN){
         //     actionLastTime = millis();
         // }
-        Serial.println(_zonedTime->now());
+
+        events();
         delay(5000);
 
-        Serial.println("RSS:         " + dateTime(RSS));
-        Serial.println("Hour:         " + hour(_zonedTime->hour()));
-        Serial.println("Day:         " + day(_zonedTime->day()));
-
+        Serial.println("RSS:         " + dateTime(_zonedTime->now(), RSS));
+     // Serial.println("Some:         " + this->_zonedTime->tzTime(makeTime(23, 18, 0, MONDAY, OCTOBER, 2020)));
+        Serial.println("Some2:         " + dateTime(makeTime(23, 18, 0, TUESDAY, OCTOBER, 2020)));
         Serial.println();
+    }
+
+    static void oturnOnLights()
+    {
+        Serial.println("Light is on");
+    }
+
+    static void oturnOffLights()
+    {
+        Serial.println("Light is off");
+    }
+
+    void oturnOnFan()
+    {
+    }
+
+    void oturnOffFan()
+    {
     }
 
 private:
@@ -64,7 +84,6 @@ private:
     long _bot_lasttime;
     unsigned long actionLastTime = 0;
     const unsigned long TEN_MIN = 600000;
-    const String URL = "http://worldclockapi.com/api/json/cet/now";
 
     void selectAction(BotAction *ba, String chat_id)
     {
@@ -110,6 +129,7 @@ private:
             return;
         }
     }
+
     void handlePrefAction()
     {
     }
