@@ -56,6 +56,7 @@ void setup()
 
 void loop()
 {
+  yield();
   controller->checkForMessages();
   controller->checkForActions();
 }
