@@ -3,53 +3,26 @@
 #include <EEPROM.h>
 #include <ezTime.h>
 
-class TimeAction
-{
-public:
-    static Timezone s_zonedTime;
-
-    static void oturnOnLights()
-    {
-        time_t time = TimeAction::s_zonedTime.now();
-        Serial.println("Light is on");
-    }
-
-    static void oturnOffLights()
-    {
-        Serial.println("Light is off");
-    }
-
-    static void oturnOnFan()
-    {
-    }
-
-    static void oturnOffFan()
-    {
-    }
-};
-
 class ActionController
 {
 
 public:
+    boolean fanOn = false;
+    boolean ledOn = false;
     ActionController(std::shared_ptr<UniversalTelegramBot> bot,
                      std::shared_ptr<HTU21D> temHymSensor,
-                     std::shared_ptr<Timezone> zonedTime,
-                     int bot_mtbs = 700)
+                     u8_t fanPin = 12, u8_t ledPin = 14,
+                     int bot_mtbs = 500)
     {
         this->_bot = bot;
         this->_temHymSensor = temHymSensor;
         this->_temHymSensor->begin();
         this->_temHymSensor->setResolution(0b11);
         this->_bot_mtbs = bot_mtbs;
-        this->_zonedTime = zonedTime;
-
+        this->_fanPin = fanPin;
+        this->_ledPin = ledPin;
         _bot_lasttime = 0;
         //settings
-        waitForSync();
-        this->_zonedTime->setLocation("Europe/Kiev");
-        // this->_zonedTime->setEvent(oturnOnLights, makeTime(14, 43, 55, 13, OCTOBER, 2020));
-        // this->_zonedTime->setEvent(oturnOffLights, makeTime(14, 43, 30, 13, OCTOBER, 2020));
     }
 
     void checkForMessages()
@@ -69,46 +42,14 @@ public:
         }
     }
 
-    void checkForActions()
-    {
-        // if((millis() - actionLastTime) > TEN_MIN){
-        //     actionLastTime = millis();
-        // }
-
-        events();
-        delay(5000);
-        time_t currentTime = _zonedTime->now();
-        tmElements_t t;
-        breakTime(currentTime, t);
-        Serial.println("RSS:         " + dateTime(currentTime, RSS));
-        Serial.println("Some2:         " + dateTime(makeTime(23, 18, 0, TUESDAY, OCTOBER, 2020)));
-        printTime(t);
-    }
-
-    void addEvent()
-    {
-    }
-
-    void printTime(tmElements_t &t)
-    {
-        Serial.println(t.Year);
-        Serial.println(t.Month);
-        Serial.println(t.Day);
-        Serial.println(t.Hour);
-        Serial.println(t.Minute);
-        Serial.println(t.Second);
-    }
-
 private:
     std::shared_ptr<UniversalTelegramBot> _bot;
     std::shared_ptr<HTU21D> _temHymSensor;
-    std::shared_ptr<Timezone> _zonedTime;
     int _bot_mtbs;
     long _bot_lasttime;
     unsigned long actionLastTime = 0;
-    static const uint8_t l_OffHour = 19;
-    static const uint8_t l_OnHour = 8;
-
+    u8_t _fanPin;
+    u8_t _ledPin;
     void selectAction(BotAction *ba, String chat_id)
     {
         ba->execute(chat_id);
