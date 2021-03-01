@@ -5,6 +5,7 @@
 #include <ActionController.h>
 #include "SPIFFS.h"
 #include "esp_task_wdt.h"
+// #include "esp_camera.h"
 
 #define I2C_SDA 13
 #define I2C_SCL 15
@@ -55,6 +56,7 @@ TaskHandle_t handle1 = NULL;
 void vTask1Code(void *pvParameters)
 {
   Serial.println("Set wdt");
+  //Due to bug with WDT, i set wdt timer to 2 days
   Serial.println(esp_err_to_name(esp_task_wdt_init(3600 * 48, true)));
   for (;;)
   {
@@ -78,6 +80,7 @@ void setup()
     Serial.println("An Error has occurred while mounting two wire");
     return;
   }
+  WiFi.setTxPower(WIFI_POWER_18_5dBm);
   WiFi.begin("Tenda_1FDCD8", "");
 
   while (WiFi.status() != WL_CONNECTED)
