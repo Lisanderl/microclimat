@@ -232,6 +232,9 @@ namespace ezt
 		for (uint8_t n = 0; n < MAX_EVENTS; n++)
 		{
 			time_t currentTime = nowUTC(false);
+			Serial.println("debug.. ckeck event ");
+			Serial.println(dateTime(currentTime));
+			Serial.println(dateTime(_events[n].time));
 			if (_events[n].function && currentTime >= _events[n].time)
 			{
 				debug(F("Running event (#"));
@@ -242,13 +245,15 @@ namespace ezt
 				(tmp)(); // execute the function
 				if (_events[n].next_time == recurrence::ONCE)
 				{
+					Serial.println("debug.. reset");
 					_events[n] = {0, NULL, 0}; // reset the event
 				}
 				else
 				{
-					// if event sceduled in the long past, this will exclude multiple execution bug
+					// if event sceduled in the past, this will exclude multiple execution bug
 					if (currentTime - _events[n].time > MINUTELY)
 					{
+						Serial.println("debug.. in the past ");
 						_events[n].time = currentTime + _events[n].next_time;
 						return;
 					}

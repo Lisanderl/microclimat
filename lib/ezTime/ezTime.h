@@ -82,6 +82,7 @@ extern "C++"
 		ONCE = 0,
 		MINUTELY = 60,
 		HOURLY = 3600,
+		HALF_DAILY = 43200,
 		DAILY = 86400
 	} recurrence;
 
